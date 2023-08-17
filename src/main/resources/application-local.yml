@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${POSTGRES_DB_URL}
-    username: ${POSTGRES_DB_USERNAME}
-    password: ${POSTGRES_DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: emiw2003
   mail:
     properties:
       mail:

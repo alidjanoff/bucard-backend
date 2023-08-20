@@ -13,7 +13,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"phone"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,7 +38,7 @@ public class UserEntity {
     @Builder.Default
     private UserType plan = UserType.FREE;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade = CascadeType.PERSIST)
     private List<BoxEntity> boxes;
 
     @CreationTimestamp

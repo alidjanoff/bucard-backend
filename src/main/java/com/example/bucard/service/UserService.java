@@ -1,51 +1,90 @@
 package com.example.bucard.service;
 
+import com.example.bucard.dao.entity.BoxEntity;
 import com.example.bucard.dao.entity.UserEntity;
 import com.example.bucard.dao.repository.UserRepository;
 import com.example.bucard.mapper.UserMapper;
-import com.example.bucard.model.dto.LoginDto;
-import com.example.bucard.model.dto.PlanDto;
-import com.example.bucard.model.dto.RegisterDto;
-import com.example.bucard.model.dto.UserDto;
+import com.example.bucard.model.dto.*;
+import com.example.bucard.model.exception.AlreadyExistException;
+import com.example.bucard.model.exception.IncorrectOtpException;
 import com.example.bucard.model.exception.NotFoundException;
 import com.example.bucard.model.exception.PasswordNotCorrectException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Base64;
-import java.util.Random;
+import java.net.URI;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 public class UserService {
+    private final String URL = "http://gw.soft-line.az/sendsms";
+
     private final UserRepository userRepository;
 
-    private final JavaMailSender javaMailSender;
-    private LoadingCache<String, Integer> otpCache = CacheBuilder.newBuilder().
-        expireAfterWrite(4, TimeUnit.MINUTES)
+
+    private final LoadingCache<String, Integer> otpCache = CacheBuilder.newBuilder().
+        expireAfterWrite(2, TimeUnit.MINUTES)
+
         .build(new CacheLoader<String, Integer>() {
             public Integer load(String key) {
                 return 0;
             }
         });
 
-    public UserService(UserRepository userRepository, JavaMailSender javaMailSender) {
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public UserService(UserRepository userRepository ) {
         this.userRepository = userRepository;
-        this.javaMailSender = javaMailSender;
     }
 
-    public void registerUser(RegisterDto registerDto) {
+    public UserDto getUser(Long id) {
+        log.info("ActionLog.getUser.start with id: {}", id);
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> {
+            log.error("ActionLog.getUser.error with id: {}", id);
+            throw new NotFoundException("USER_NOT_FOUND with id: " + id);
+        });
+        log.info("ActionLog.getUser.end with id: {}", id);
+        return UserMapper.INSTANCE.mapEntityToDto(userEntity);
+    }
+
+    public void registerUser(RegisterDto registerDto) throws ExecutionException {
         log.info("ActionLog.registerUser.start");
-        UserEntity userEntity = UserMapper.INSTANCE.mapRegisterDtoToEntity(registerDto);
-        userRepository.save(userEntity);
-        log.info("ActionLog.registerUser.end");
+        if (!userRepository.existsByPhone(registerDto.getPhone())) {
+            UserEntity userEntity = UserMapper.INSTANCE.mapRegisterDtoToEntity(registerDto);
+            sendOtp("mrdeathly007@gmail.com");
+            userEntity.setBoxes(new ArrayList<>(List.of(
+                BoxEntity.builder()
+                    .emoji("😍")
+                    .title("Bazaaar")
+                    .user(userEntity)
+                    .build(),
+                BoxEntity.builder()
+                    .title("Specials")
+                    .emoji("😃")
+                    .user(userEntity)
+                    .build()
+            )
+            ));
+            userRepository.save(userEntity);
+            log.info("ActionLog.registerUser.end");
+        } else {
+            throw new AlreadyExistException("PHONE_NUMBER_ALREADY_EXIST");
+        }
+
     }
 
     public void selectPlan(PlanDto planDto) {
@@ -73,31 +112,37 @@ public class UserService {
         return UserMapper.INSTANCE.mapEntityToDto(userEntity);
     }
 
-    public void sendOtp(String mail) {
+    public void sendOtp(String phone) throws ExecutionException {
         log.info("ActionLog.sendOtp.start");
         Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
-        otpCache.put(mail, otp);
+        int otp = 1000 + random.nextInt(9000);
+        otpCache.put(phone, otp);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        URI uri = UriComponentsBuilder.fromUriString(URL)
+            .queryParam("user","softtest")
+            .queryParam("password","RhuAzU8t")
+            .queryParam("gsm", phone)
+            .queryParam("from","SOFTLINE")
+            .queryParam("text", otp)
+            .build().toUri();
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(mail);
-        message.setSubject("[no-reply] Texnoera Academy");
-        message.setText("" + otp);
-        message.setFrom("texnoera.academy@gmail.com");
-        javaMailSender.send(message);
+        restTemplate.exchange(uri,
+            HttpMethod.GET, entity, String.class);
         log.info("ActionLog.sendOtp.end");
     }
 
-    public String verifyOtp(String mail, Integer otp) throws ExecutionException {
+    public String verifyOtp(String phone, Integer otp) throws ExecutionException {
         log.info("ActionLog.verifyOtp.start");
-        Integer cacheOtp = otpCache.get(mail);
+        int cacheOtp = otpCache.get(phone);
         if (otp.equals(cacheOtp)) {
-            otpCache.invalidate(mail);
+            otpCache.invalidate(phone);
             log.info("ActionLog.verifyOtp.end");
             return "success";
         } else {
             log.info("ActionLog.verifyOtp.end");
-            return "fail";
+            throw new IncorrectOtpException("INCORRECT_OTP");
         }
     }
 

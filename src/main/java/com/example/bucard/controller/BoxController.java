@@ -1,11 +1,9 @@
 package com.example.bucard.controller;
 
+import com.example.bucard.model.dto.BoxDto;
 import com.example.bucard.model.dto.BoxRequestDto;
 import com.example.bucard.service.BoxService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/box")
@@ -16,7 +14,13 @@ public class BoxController {
         this.boxService = boxService;
     }
     @PostMapping
-    public void createBox(@RequestBody BoxRequestDto boxDto){
-        boxService.createBox(boxDto);
+    public BoxDto createBox(@RequestBody BoxRequestDto boxDto){
+         return boxService.createBox(boxDto);
     }
+
+    @GetMapping("/check-profile")
+    public Boolean checkProfileInBox(Long boxId,Long profileId){
+        return boxService.checkProfileInBox(boxId,profileId);
+    }
+
 }

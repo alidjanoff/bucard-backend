@@ -5,6 +5,7 @@ import com.example.bucard.model.dto.PlanDto;
 import com.example.bucard.model.dto.RegisterDto;
 import com.example.bucard.model.dto.UserDto;
 import com.example.bucard.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.ExecutionException;
@@ -19,27 +20,32 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public void createUser(@RequestBody RegisterDto registerDto){
+    public void createUser(@RequestBody @Valid RegisterDto registerDto) throws ExecutionException {
         userService.registerUser(registerDto);
     }
 
     @PatchMapping("/select-plan")
-    public void selectPlan(@RequestBody PlanDto planDto){
+    public void selectPlan(@RequestBody PlanDto planDto) {
         userService.selectPlan(planDto);
     }
 
     @PostMapping
-    public UserDto login(@RequestBody LoginDto loginDto){
+    public UserDto login(@RequestBody LoginDto loginDto) {
         return userService.login(loginDto);
     }
 
     @PostMapping("/send-otp")
-    public void sendOtp(String mail){
-        userService.sendOtp(mail);
+    public void sendOtp(String phone) throws ExecutionException {
+        userService.sendOtp(phone);
     }
 
     @PostMapping("/verify-otp")
-    public String verifyOtp(String mail, Integer otp) throws ExecutionException {
-        return userService.verifyOtp(mail,otp);
+    public String verifyOtp(String phone, Integer otp) throws ExecutionException {
+        return userService.verifyOtp(phone, otp);
+    }
+
+    @GetMapping("/{id}")
+    public UserDto getUser(@PathVariable Long id) {
+        return userService.getUser(id);
     }
 }

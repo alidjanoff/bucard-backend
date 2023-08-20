@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -37,18 +39,30 @@ public class ProfileService {
     @Transactional
     public void addToBox(AddToBoxDto addToBoxDto) {
         log.info("ActionLog.addToBox.start");
-        ProfileEntity profileEntity = profileRepository.findById(addToBoxDto.getProfileId())
+        ProfileEntity profileEntity = profileRepository.findByIdAndUser_Id(addToBoxDto.getProfileId(), addToBoxDto.getUserId())
             .orElseThrow(() -> {
                 log.error("ActionLog.saveProfile.error with id {}", addToBoxDto.getProfileId());
                 throw new NotFoundException("PROFILE_NOT_FOUND with id" + addToBoxDto.getProfileId());
             });
-        profileEntity.setSavedBoxes(profileEntity.getSavedBoxes() + 1);
-        profileEntity.setBoxes(new ArrayList<>(List.of(BoxEntity.builder()
-            .id(addToBoxDto.getBoxId())
-            .build())
-            )
-        );
-        profileRepository.save(profileEntity);
-        log.info("ActionLog.addToBox.end");
+        List<BoxEntity> collect = profileEntity.getBoxes()
+            .stream()
+            .filter(e -> e.getUser().getId().equals(addToBoxDto.getUserId())
+            ).collect(Collectors.toList());
+        if (collect.isEmpty()) {
+            profileEntity.setSavedBoxes(profileEntity.getSavedBoxes() + 1);
+            profileEntity.getBoxes().add(BoxEntity.builder().id(addToBoxDto.getBoxId()).build());
+            profileRepository.save(profileEntity);
+            log.info("ActionLog.addToBox.end");
+        } else {
+            List<BoxEntity> newBoxes = profileEntity.getBoxes().stream().peek(e -> {
+                if (e.getUser().getId().equals(addToBoxDto.getUserId())) {
+                    e.setId(addToBoxDto.getBoxId());
+                }
+            }).collect(Collectors.toList());
+            profileEntity.setBoxes(newBoxes);
+            profileRepository.save(profileEntity);
+            log.info("ActionLog.addToBox.end");
+        }
+
     }
 }

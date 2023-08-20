@@ -22,11 +22,12 @@ public class BoxEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String title;
 
     private String emoji;
 
-    @ManyToMany(mappedBy = "boxes")
+    @ManyToMany(mappedBy = "boxes",cascade = CascadeType.REFRESH)
     private List<ProfileEntity> profiles;
 
     @ManyToOne(cascade = CascadeType.REFRESH)

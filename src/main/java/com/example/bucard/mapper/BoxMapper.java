@@ -17,4 +17,6 @@ public abstract class BoxMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     public abstract BoxEntity mapDtoToEntity(BoxRequestDto boxDto);
+
+    public abstract BoxDto mapEntityToDto(BoxEntity boxEntity);
 }

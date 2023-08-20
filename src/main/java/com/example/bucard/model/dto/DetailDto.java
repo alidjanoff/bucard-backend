@@ -1,16 +1,16 @@
 package com.example.bucard.model.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddToBoxDto {
-    private Long profileId;
+@Data
+@Builder
+public class DetailDto {
+    private Long id;
 
-    private Long boxId;
-
-    private Long userId;
+    private String detail;
 }

@@ -3,9 +3,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle build --no-daemon
 
-FROM openjdk:8-jre-slim
-
-EXPOSE 8080
+FROM eclipse-temurin:17-jdk-alpine
 
 RUN mkdir /app
 

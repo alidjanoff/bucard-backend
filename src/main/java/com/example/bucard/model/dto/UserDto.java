@@ -27,5 +27,7 @@ public class UserDto {
 
     private UserType plan;
 
+    private String token;
+
     private List<BoxDto> boxes;
 }

@@ -14,9 +14,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "users",
-uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"phone"})
-})
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"phone"})
+    })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,11 +34,14 @@ public class UserEntity {
 
     private String phone;
 
+    @Column(unique = true)
+    private String token;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private UserType plan = UserType.FREE;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BoxEntity> boxes;
 
     @CreationTimestamp

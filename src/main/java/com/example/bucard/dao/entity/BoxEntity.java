@@ -27,7 +27,7 @@ public class BoxEntity {
 
     private String emoji;
 
-    @ManyToMany(mappedBy = "boxes",cascade = CascadeType.REFRESH)
+    @ManyToMany(mappedBy = "boxes",cascade = {CascadeType.REMOVE,CascadeType.REFRESH})
     private List<ProfileEntity> profiles;
 
     @ManyToOne(cascade = CascadeType.REFRESH)

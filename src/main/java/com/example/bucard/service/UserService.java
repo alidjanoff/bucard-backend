@@ -9,6 +9,7 @@ import com.example.bucard.model.exception.AlreadyExistException;
 import com.example.bucard.model.exception.IncorrectOtpException;
 import com.example.bucard.model.exception.NotFoundException;
 import com.example.bucard.model.exception.PasswordNotCorrectException;
+import com.example.bucard.util.TokenGenerator;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -47,17 +48,27 @@ public class UserService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public UserService(UserRepository userRepository ) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public UserDto getUser(Long id) {
-        log.info("ActionLog.getUser.start with id: {}", id);
-        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> {
-            log.error("ActionLog.getUser.error with id: {}", id);
-            throw new NotFoundException("USER_NOT_FOUND with id: " + id);
+//    public UserDto getUser(Long id) {
+//        log.info("ActionLog.getUser.start with id: {}", id);
+//        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> {
+//            log.error("ActionLog.getUser.error with id: {}", id);
+//            throw new NotFoundException("USER_NOT_FOUND with id: " + id);
+//        });
+//        log.info("ActionLog.getUser.end with id: {}", id);
+//        return UserMapper.INSTANCE.mapEntityToDto(userEntity);
+//    }
+
+    public UserDto getUser(String token){
+        log.info("ActionLog.getUser.start with token: {}", token);
+        UserEntity userEntity = userRepository.findByToken(token).orElseThrow(() -> {
+            log.error("ActionLog.getUser.error with id: {}", token);
+            throw new NotFoundException("USER_NOT_FOUND with id: " + token);
         });
-        log.info("ActionLog.getUser.end with id: {}", id);
+        log.info("ActionLog.getUser.end with token: {}", token);
         return UserMapper.INSTANCE.mapEntityToDto(userEntity);
     }
 
@@ -65,7 +76,6 @@ public class UserService {
         log.info("ActionLog.registerUser.start");
         if (!userRepository.existsByPhone(registerDto.getPhone())) {
             UserEntity userEntity = UserMapper.INSTANCE.mapRegisterDtoToEntity(registerDto);
-            sendOtp("mrdeathly007@gmail.com");
             userEntity.setBoxes(new ArrayList<>(List.of(
                 BoxEntity.builder()
                     .emoji("😍")
@@ -79,6 +89,7 @@ public class UserService {
                     .build()
             )
             ));
+            userEntity.setToken(TokenGenerator.generateToken(userEntity.getFullName()));
             userRepository.save(userEntity);
             log.info("ActionLog.registerUser.end");
         } else {
@@ -108,7 +119,7 @@ public class UserService {
             .equals(userEntity.getPassword())) {
             throw new PasswordNotCorrectException("INCORRECT_PASSWORD");
         }
-
+        log.info("ActionLog.login.end");
         return UserMapper.INSTANCE.mapEntityToDto(userEntity);
     }
 
@@ -121,10 +132,10 @@ public class UserService {
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<String> entity = new HttpEntity<>(headers);
         URI uri = UriComponentsBuilder.fromUriString(URL)
-            .queryParam("user","softtest")
-            .queryParam("password","RhuAzU8t")
+            .queryParam("user", "softtest")
+            .queryParam("password", "RhuAzU8t")
             .queryParam("gsm", phone)
-            .queryParam("from","SOFTLINE")
+            .queryParam("from", "SOFTLINE")
             .queryParam("text", otp)
             .build().toUri();
 
@@ -144,6 +155,12 @@ public class UserService {
             log.info("ActionLog.verifyOtp.end");
             throw new IncorrectOtpException("INCORRECT_OTP");
         }
+    }
+
+    public void deleteUsers() {
+        log.info("ActionLog.deleteUsers.start");
+        userRepository.deleteAll();
+        log.info("ActionLog.deleteUsers.end");
     }
 
     private UserEntity getUserIfExist(Long id) {

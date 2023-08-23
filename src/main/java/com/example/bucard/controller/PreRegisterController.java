@@ -2,6 +2,7 @@ package com.example.bucard.controller;
 
 import com.example.bucard.model.dto.PreRegisterDto;
 import com.example.bucard.service.PreRegisterService;
+import jakarta.mail.MessagingException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +18,7 @@ public class PreRegisterController {
     }
 
     @PostMapping
-    public void preRegisterMailVerification(@RequestBody PreRegisterDto preRegisterDto){
+    public void preRegisterMailVerification(@RequestBody PreRegisterDto preRegisterDto) throws MessagingException {
         preRegisterService.sendMail(preRegisterDto);
     }
 }

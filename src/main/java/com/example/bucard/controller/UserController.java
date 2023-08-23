@@ -6,6 +6,9 @@ import com.example.bucard.model.dto.RegisterDto;
 import com.example.bucard.model.dto.UserDto;
 import com.example.bucard.service.UserService;
 import jakarta.validation.Valid;
+import org.apache.catalina.User;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.ExecutionException;
@@ -20,6 +23,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@RequestBody @Valid RegisterDto registerDto) throws ExecutionException {
         userService.registerUser(registerDto);
     }
@@ -44,8 +48,20 @@ public class UserController {
         return userService.verifyOtp(phone, otp);
     }
 
-    @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable Long id) {
-        return userService.getUser(id);
+//    @GetMapping("/{id}")
+//    public UserDto getUser(@PathVariable Long id) {
+//        return userService.getUser(id);
+//    }
+
+    @DeleteMapping
+    public void deleteUsers() {
+        userService.deleteUsers();
     }
+
+    @GetMapping
+    public UserDto getUser(String token) {
+        return userService.getUser(token);
+    }
+
+
 }

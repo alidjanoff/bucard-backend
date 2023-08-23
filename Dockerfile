@@ -7,6 +7,6 @@ FROM eclipse-temurin:17-jdk-alpine
 
 RUN mkdir /app
 
-COPY --from=build /home/gradle/src/build/libs/bucard.jar /app/app.jar
+COPY --from=build /home/gradle/src/build/libs/bucard.jar /app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
 EXPOSE 8080

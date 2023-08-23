@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-cjj94f0cfp5c73eur330-a.frankfurt-postgres.render.com:5432/postgres
+    url: jdbc:postgresql://dpg-cjj94f0cfp5c73eur330-a.frankfurt-postgres.render.com:5432/bucard
     username: postgres
     password: hqymVKaz53SU9sZla8VO6JLUTTLlGN2e
   mail:

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://217.76.52.82:5432/texnoera
+    url: jdbc:postgresql://217.76.52.82:5432/bucard
     username: texnoera
     password: Techn0er@002
     driver-class-name: org.postgresql.Driver

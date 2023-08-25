@@ -1,9 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://217.76.52.82:5432/bucard
-    username: texnoera
-    password: Techn0er@002
-    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRES_DB_URL}
+    username: ${POSTGRES_DB_USERNAME}
+    password: ${POSTGRES_DB_PASSWORD}
   mail:
     properties:
       mail:
@@ -18,5 +17,3 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      dialect: org.hibernate.dialect.PostgreSQLDialect

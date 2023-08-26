@@ -1,7 +1,6 @@
 package com.example.bucard.model.dto;
 
-import com.example.bucard.dao.entity.DetailEntity;
-import jakarta.persistence.OneToMany;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

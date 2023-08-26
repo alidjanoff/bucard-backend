@@ -19,7 +19,7 @@ public class DetailEntity {
 
     private String detail;
 
-    @ManyToOne(cascade = CascadeType.REFRESH)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "plan_id")
     private PlanEntity plan;
 

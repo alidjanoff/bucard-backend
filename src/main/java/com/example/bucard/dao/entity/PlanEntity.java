@@ -29,6 +29,6 @@ public class PlanEntity {
 
     private Integer percent;
 
-    @OneToMany(mappedBy = "plan")
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<DetailEntity> details;
 }

@@ -1,5 +1,6 @@
 package com.example.bucard.service;
 
+import com.example.bucard.dao.entity.DetailEntity;
 import com.example.bucard.dao.entity.PlanEntity;
 import com.example.bucard.dao.repository.PlanRepository;
 import com.example.bucard.mapper.PlanMapper;
@@ -26,6 +27,12 @@ public class PlanService {
     }
 
     public void addPlan(PlanResponse planResponse){
-
+        log.info("ActionLog.addPlan.start");
+        PlanEntity planEntity = PlanMapper.INSTANCE.mapDtoToEntity(planResponse);
+        for (DetailEntity detailEntity : planEntity.getDetails()) {
+            detailEntity.setPlan(planEntity);
+        }
+        planRepository.save(planEntity);
+        log.info("ActionLog.addPlan.end");
     }
 }

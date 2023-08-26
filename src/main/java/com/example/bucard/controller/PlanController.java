@@ -22,6 +22,6 @@ public class PlanController {
 
     @PostMapping
     public void addPlan(@RequestBody PlanResponse planResponse){
-
+        planService.addPlan(planResponse);
     }
 }

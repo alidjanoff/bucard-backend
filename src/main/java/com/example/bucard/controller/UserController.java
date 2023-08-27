@@ -39,8 +39,8 @@ public class UserController {
     }
 
     @PostMapping("/send-otp")
-    public void sendOtp(String phone) throws ExecutionException {
-        userService.sendOtp(phone);
+    public void sendOtp(String phone, String fullName) throws ExecutionException {
+        userService.sendOtp(phone,fullName);
     }
 
     @PostMapping("/verify-otp")

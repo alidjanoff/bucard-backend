@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${src/main/resources/.env/POSTGRES_DB_URL}
-    username: ${src/main/resources/.env/POSTGRES_DB_USERNAME}
-    password: ${src/main/resources/.env/POSTGRES_DB_PASSWORD}
+    url: ${POSTGRES_DB_URL}
+    username: ${POSTGRES_DB_USERNAME}
+    password: ${POSTGRES_DB_PASSWORD}
   mail:
     properties:
       mail:

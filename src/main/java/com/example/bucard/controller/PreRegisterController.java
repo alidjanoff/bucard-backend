@@ -17,8 +17,13 @@ public class PreRegisterController {
         this.preRegisterService = preRegisterService;
     }
 
-    @PostMapping
+    @PostMapping("/send-mail")
     public void preRegisterMailVerification(@RequestBody PreRegisterDto preRegisterDto) throws MessagingException {
         preRegisterService.sendMail(preRegisterDto);
+    }
+
+    @PostMapping
+    public void addMail(@RequestBody PreRegisterDto preRegisterDto){
+        preRegisterService.addMail(preRegisterDto);
     }
 }

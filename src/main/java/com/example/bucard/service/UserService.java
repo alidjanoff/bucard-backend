@@ -93,6 +93,7 @@ public class UserService {
             userRepository.save(userEntity);
             log.info("ActionLog.registerUser.end");
         } else {
+            log.error("ActionLog.registerUser.error");
             throw new AlreadyExistException("PHONE_NUMBER_ALREADY_EXIST");
         }
 
@@ -123,7 +124,7 @@ public class UserService {
         return UserMapper.INSTANCE.mapEntityToDto(userEntity);
     }
 
-    public void sendOtp(String phone) throws ExecutionException {
+    public void sendOtp(String phone,String fullName) throws ExecutionException {
         log.info("ActionLog.sendOtp.start");
         Random random = new Random();
         int otp = 1000 + random.nextInt(9000);
@@ -131,12 +132,19 @@ public class UserService {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<String> entity = new HttpEntity<>(headers);
+        String message = "Salam " + fullName + ".\n" +
+            "https://www.bucard.az - hesabınızı təsdiqləmək üçün OTP: " + otp +
+            "\n" +
+            "Bu kodu başqaları ilə bölüşməyin !\n" +
+            "Bu kod yalnız bu qeydiyyat prosesində istifadə edilə bilər !\n" +
+            "\n" +
+            "Təşəkkürlər. BUCARD Komandası";
         URI uri = UriComponentsBuilder.fromUriString(URL)
-            .queryParam("user", "softtest")
-            .queryParam("password", "RhuAzU8t")
+            .queryParam("user", "bucardazapi")
+            .queryParam("password", "HtN0Wcla")
             .queryParam("gsm", phone)
-            .queryParam("from", "SOFTLINE")
-            .queryParam("text", otp)
+            .queryParam("from", "bucard.az")
+            .queryParam("text", message)
             .build().toUri();
 
         restTemplate.exchange(uri,

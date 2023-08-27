@@ -15,7 +15,7 @@ jobs:
                 ubuntu@16.171.197.172 \
                 "cd /var/www/stg.api.bucard.az/ && \
                 sudo git pull && \
-                gradle build && \
+                gradle build --no-daemon && \
                 sudo systemctl restart stgapibucard && \
                 sudo systemctl restart nginx"
             elif [ "$CIRCLE_BRANCH" = "master" ]; then
@@ -24,7 +24,7 @@ jobs:
                 ubuntu@16.171.197.172 \
                 "cd /var/www/api.bucard.az/ && \
                 sudo git pull && \
-                gradle build && \
+                gradle build --no-daemon && \
                 sudo systemctl restart apibucard && \
                 sudo systemctl restart nginx"
             fi

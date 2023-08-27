@@ -1,0 +1,44 @@
+version: 2.1
+jobs:
+  deploy:
+    docker:
+      - image: circleci/python
+    steps:
+      - run:
+          name: Deploy over SSH
+          environment:
+            SSH_TIMEOUT: 30
+          command: |
+            if [ "$CIRCLE_BRANCH" = "development" ]; then
+              ssh -o "StrictHostKeyChecking=no" \
+                -o "ConnectTimeout=${SSH_TIMEOUT}" \
+                ubuntu@16.171.197.172 \
+                "cd /var/www/stg.api.bucard.az/ && \
+                sudo git pull && \
+                sudo chmod +x gradlew && \
+                sudo ./gradlew build && \
+                sudo systemctl restart stgapibucard && \
+                sudo systemctl restart nginx"
+            elif [ "$CIRCLE_BRANCH" = "master" ]; then
+              ssh -o "StrictHostKeyChecking=no" \
+                -o "ConnectTimeout=${SSH_TIMEOUT}" \
+                ubuntu@16.171.197.172 \
+                "cd /var/www/api.bucard.az/ && \
+                sudo git pull && \
+                sudo chmod +x gradlew && \
+                sudo ./gradlew build && \
+                sudo systemctl restart apibucard && \
+                sudo systemctl restart nginx"
+            fi
+
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only:
+                - development
+                - master

@@ -29,5 +29,7 @@ public class UserDto {
 
     private String token;
 
+    private String qrCode;
+
     private List<BoxDto> boxes;
 }

@@ -5,12 +5,14 @@ import com.example.bucard.model.dto.PlanDto;
 import com.example.bucard.model.dto.RegisterDto;
 import com.example.bucard.model.dto.UserDto;
 import com.example.bucard.service.UserService;
+import com.google.zxing.WriterException;
 import jakarta.validation.Valid;
 import org.apache.catalina.User;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -24,7 +26,7 @@ public class UserController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@RequestBody @Valid RegisterDto registerDto) throws ExecutionException {
+    public void createUser(@RequestBody @Valid RegisterDto registerDto) throws ExecutionException, IOException, WriterException {
         userService.registerUser(registerDto);
     }
 

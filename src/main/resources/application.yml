@@ -11,8 +11,8 @@ spring:
             enable: true
           auth: true
     host: smtp.gmail.com
-    username: texnoera.academy@gmail.com
-    password: sjqmzjnzbyxxlusr
+    username: bucardapp@gmail.com
+    password: dzzrhjwijqwjkvoc
     port: 587
   jpa:
     hibernate:

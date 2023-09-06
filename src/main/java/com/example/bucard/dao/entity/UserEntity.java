@@ -32,6 +32,9 @@ public class UserEntity {
 
     private String email;
 
+    @Column(columnDefinition = "TEXT")
+    private String qrCode;
+
     private String phone;
 
     @Column(unique = true)

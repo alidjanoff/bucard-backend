@@ -9,12 +9,13 @@ import com.example.bucard.model.exception.AlreadyExistException;
 import com.example.bucard.model.exception.IncorrectOtpException;
 import com.example.bucard.model.exception.NotFoundException;
 import com.example.bucard.model.exception.PasswordNotCorrectException;
+import com.example.bucard.util.QRCodeGenerator;
 import com.example.bucard.util.TokenGenerator;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.zxing.WriterException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -32,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class UserService {
     private final String URL = "http://gw.soft-line.az/sendsms";
+    private final String PATH = "https://bucard.az/";
 
     private final UserRepository userRepository;
 
@@ -72,7 +75,7 @@ public class UserService {
         return UserMapper.INSTANCE.mapEntityToDto(userEntity);
     }
 
-    public void registerUser(RegisterDto registerDto) throws ExecutionException {
+    public void registerUser(RegisterDto registerDto) throws ExecutionException, IOException, WriterException {
         log.info("ActionLog.registerUser.start");
         if (!userRepository.existsByPhone(registerDto.getPhone())) {
             UserEntity userEntity = UserMapper.INSTANCE.mapRegisterDtoToEntity(registerDto);
@@ -90,6 +93,9 @@ public class UserService {
             )
             ));
             userEntity.setToken(TokenGenerator.generateToken(userEntity.getFullName()));
+            byte[] qrCodeImage = QRCodeGenerator.getQRCodeImage(PATH + userEntity.getToken(), 250, 250);
+            String encodeToString = Base64.getEncoder().encodeToString(qrCodeImage);
+            userEntity.setQrCode(encodeToString);
             userRepository.save(userEntity);
             log.info("ActionLog.registerUser.end");
         } else {

@@ -41,7 +41,7 @@ public class PreRegisterService {
         msg.setFrom(new InternetAddress("bucardapp@gmail.com"));
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(preRegisterDto.getEmail(), false));
         msg.setSubject("Welcome to bucard");
-        String output = this.templateEngine.process("email", new Context(Locale.getDefault()));
+        String output = this.templateEngine.process("emailTemplate", new Context(Locale.getDefault()));
         content.setContent(output, "text/html; charset=utf-8");
         multipart.addBodyPart(content);
         msg.setContent(multipart);

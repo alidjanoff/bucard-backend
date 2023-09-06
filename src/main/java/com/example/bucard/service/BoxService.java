@@ -6,6 +6,7 @@ import com.example.bucard.dao.repository.BoxRepository;
 import com.example.bucard.mapper.BoxMapper;
 import com.example.bucard.model.dto.BoxDto;
 import com.example.bucard.model.dto.BoxRequestDto;
+import com.example.bucard.model.dto.BoxUpdateRequestDto;
 import com.example.bucard.model.exception.AlreadyExistException;
 import com.example.bucard.model.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,28 @@ public class BoxService {
             }
             boxRepository.save(box);
         }
+    }
 
+    public void deleteBox(Long id) {
+        log.info("ActionLog.deleteBox.start");
+        boxRepository.deleteById(id);
+        log.info("ActionLog.deleteBox.end");
+    }
+
+    public void updateBox(BoxUpdateRequestDto boxUpdateRequestDto) {
+        log.info("ActionLog.updateBox.start");
+        BoxEntity boxEntity = boxRepository.findById(boxUpdateRequestDto.getId()).orElseThrow(
+            () -> {
+                log.error("ActionLog.updateBox.error with id: {}", boxUpdateRequestDto.getId());
+                throw new NotFoundException("BOX_NOT_FOUND");
+            });
+        boxEntity.getUser().getBoxes().forEach(boxEntity1 -> {
+            if (boxEntity.getTitle().equals(boxUpdateRequestDto.getTitle())){
+                throw new AlreadyExistException("BOX_NAME_ALREADY_EXIST");
+            }
+        });
+        boxEntity.setTitle(boxUpdateRequestDto.getTitle());
+        boxRepository.save(boxEntity);
+        log.info("ActionLog.updateBox.end");
     }
 }
